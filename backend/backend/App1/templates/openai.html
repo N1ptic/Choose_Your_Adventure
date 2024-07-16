@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Dark Forest Adventure</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <h1>Welcome to the Dark Forest Adventure</h1>
+    <p>{{ prompt }}</p>
+    <form id="choiceForm" method="POST">
+        {% csrf_token %}
+        <label for="choice">Enter your choice:</label><br>
+        <input type="text" id="choice" name="choice" required><br><br>
+        <input type="hidden" id="prompt" name="prompt" value="{{ prompt }}">
+        <button type="submit">Choose</button>
+    </form>
+    <div id="storyContainer"></div>
+
+    <script>
+        document.getElementById('choiceForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+            fetch('/handle_choice', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    document.getElementById('storyContainer').innerHTML = "<h2>Story:</h2><q><em>" + data.story + "</em></q>";
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
